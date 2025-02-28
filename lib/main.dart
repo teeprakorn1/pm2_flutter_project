@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/advice_screen.dart';
 import 'screens/graph_screen.dart';
+import 'boarding_screen.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ต้องใส่เมื่อใช้ async ใน main
-
-  // **โหลดข้อมูลหรือกำหนดค่าก่อนเริ่มแอป**
+  WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
 
-  runApp(MyApp());
+  bool showBoarding = await shouldShowBoarding();  // Check if onboarding has been shown
+  runApp(MyApp(showBoarding: showBoarding));
 }
 
-// ฟังก์ชันสำหรับเตรียมการก่อนเริ่มแอป
+// ✅ Check if we should show the onboarding screen
+Future<bool> shouldShowBoarding() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('boarding_completed') ?? true;  // If no value, show onboarding
+}
+
 Future<void> initializeApp() async {
-  await Future.delayed(Duration(seconds: 2)); // ตัวอย่าง: หน่วงเวลา 2 วินาที
-  print("แอปพร้อมทำงานแล้ว!");
+  await Future.delayed(Duration(seconds: 2));
+  print("App is ready!");
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool showBoarding;
+  const MyApp({super.key, required this.showBoarding});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class MyApp extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: MainScreen(),
+      home: showBoarding ? BoardingScreen() : MainScreen(), // Show BoardingScreen if showBoarding is true
     );
   }
 }
