@@ -2,10 +2,21 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/advice_screen.dart';
-import 'screens/cart_screen.dart';
+import 'screens/graph_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // ต้องใส่เมื่อใช้ async ใน main
+
+  // **โหลดข้อมูลหรือกำหนดค่าก่อนเริ่มแอป**
+  await initializeApp();
+
   runApp(MyApp());
+}
+
+// ฟังก์ชันสำหรับเตรียมการก่อนเริ่มแอป
+Future<void> initializeApp() async {
+  await Future.delayed(Duration(seconds: 2)); // ตัวอย่าง: หน่วงเวลา 2 วินาที
+  print("แอปพร้อมทำงานแล้ว!");
 }
 
 class MyApp extends StatelessWidget {
@@ -46,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     MapScreen(),
     AdviceScreen(),
-    CartScreen(),
+    GraphScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -63,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
         children: _pages,
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom), // ให้รองรับพื้นที่ของระบบ
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
@@ -81,8 +92,8 @@ class _MainScreenState extends State<MainScreen> {
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined, size: 30), label: ''),
               BottomNavigationBarItem(icon: Icon(Icons.south_america, size: 30), label: ''),
-              BottomNavigationBarItem(icon: Icon(Icons.settings, size: 30), label: ''),
-              BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined, size: 30), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.heart_broken, size: 30), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.auto_graph, size: 30), label: ''),
             ],
             currentIndex: _selectedIndex,
             selectedItemColor: Color(0xFFD85E5E),
