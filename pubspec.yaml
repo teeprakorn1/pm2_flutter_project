@@ -12,6 +12,7 @@ dependencies:
   shared_preferences: ^2.2.2
   device_info_plus: ^9.0.3
   flutter_secure_storage: ^9.0.0
+  flutter_svg: ^1.0.0
   sqflite: ^2.3.0
   path_provider: ^2.1.2
   cupertino_icons: ^1.0.8
@@ -31,6 +32,7 @@ flutter:
     - assets/images/onboarding_man.png
     - assets/images/onboarding_people.png
     - assets/images/onboarding_thailand_map.png
+    - assets/icons/heart-icon.svg
 
   fonts:
     - family: Inter

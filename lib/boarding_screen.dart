@@ -48,14 +48,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
             right: 30,
             child: InkWell(
               onTap: () {
-                if (_currentPage == onboardingData.length - 1) {
-                  completeOnboarding(context);
-                } else {
-                  _pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                }
+                completeOnboarding(context);
               },
               child: Ink(
                 decoration: BoxDecoration(
@@ -65,7 +58,9 @@ class _BoardingScreenState extends State<BoardingScreen> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                   child: Text(
-                    _currentPage == onboardingData.length - 1 ? "เข้าใจแล้ว" : "ข้าม",
+                    _currentPage == onboardingData.length - 1
+                        ? "เข้าใจแล้ว"
+                        : "ข้าม",
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'NotoSansThai',
@@ -107,11 +102,11 @@ class _BoardingScreenState extends State<BoardingScreen> {
   Widget buildDot(int index, BuildContext context) {
     return Container(
       margin: EdgeInsets.only(right: 5),
-      height: 12, // ขนาดจุด
-      width: 12, // ขนาดจุด
+      height: 12,
+      width: 12,
       decoration: BoxDecoration(
         color: _currentPage == index ? Color(0xFFD85E5E) : Colors.grey,
-        borderRadius: BorderRadius.circular(6), // ทำให้จุดมีมุมโค้ง
+        borderRadius: BorderRadius.circular(6),
       ),
     );
   }
