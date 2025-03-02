@@ -1,67 +1,142 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final Color backgroundColor; // ตัวแปรสีพื้นหลัง
+
+  const HomeScreen({super.key, required this.backgroundColor}); // รับค่า backgroundColor ผ่านคอนสตรัคเตอร์
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor, // ใช้ตัวแปรนี้ในการตั้งสีพื้นหลัง
       body: Padding(
-        padding: const EdgeInsets.all(10.0), // กำหนด margin ระยะห่างจากขอบจอ
+        padding: const EdgeInsets.all(10.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // จัดแนวตั้งให้ตรงกลาง
-          crossAxisAlignment: CrossAxisAlignment.center, // จัดแนวนอนให้ตรงกลาง
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // กล่องที่ด้านบน
+            SizedBox(height: 50),
             Container(
-              height: (MediaQuery.of(context).size.height + 300) / 3, // ทำให้กล่องบนยาวขึ้น
+              height: (MediaQuery.of(context).size.height + 280) / 3,
               width: double.infinity,
-              color: Colors.blue,
-              child: Center(child: Text("Top Box", style: TextStyle(color: Colors.white))),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text("Top Box", style: TextStyle(color: Colors.white)),
+              ),
             ),
-            SizedBox(height: 10), // เว้นระยะห่าง 10 ระหว่างกล่อง
+            SizedBox(height: 20),
 
-            // กล่องตรงกลาง 3 กล่อง
             Row(
-              mainAxisAlignment: MainAxisAlignment.center, // จัดแนวนอนให้ตรงกลาง
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  height: (MediaQuery.of(context).size.height - 40) / 8, // ทำให้กล่องกลางเล็กลง
-                  width: (MediaQuery.of(context).size.width - 40) / 3, // คำนวณขนาดของแต่ละกล่อง
-                  color: Colors.red,
-                  child: Center(child: Text("Box 1", style: TextStyle(color: Colors.white))),
-                ),
-                SizedBox(width: 10), // เว้นระยะห่าง 10 ระหว่างกล่อง
-                Container(
-                  height: (MediaQuery.of(context).size.height - 40) / 8,
+                  height: (MediaQuery.of(context).size.height - 100) / 8,
                   width: (MediaQuery.of(context).size.width - 40) / 3,
-                  color: Colors.green,
-                  child: Center(child: Text("Box 2", style: TextStyle(color: Colors.white))),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text("Box 1", style: TextStyle(color: Colors.black)),
+                  ),
                 ),
-                SizedBox(width: 10), // เว้นระยะห่าง 10 ระหว่างกล่อง
+                SizedBox(width: 10),
                 Container(
-                  height: (MediaQuery.of(context).size.height - 40) / 8,
+                  height: (MediaQuery.of(context).size.height - 100) / 8,
                   width: (MediaQuery.of(context).size.width - 40) / 3,
-                  color: Colors.orange,
-                  child: Center(child: Text("Box 3", style: TextStyle(color: Colors.white))),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text("Box 2", style: TextStyle(color: Colors.black)),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Container(
+                  height: (MediaQuery.of(context).size.height - 100) / 8,
+                  width: (MediaQuery.of(context).size.width - 40) / 3,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text("Box 3", style: TextStyle(color: Colors.black)),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 10), // เว้นระยะห่าง 10 ระหว่างกล่อง
-
-            // ข้อความระหว่างกล่อง
-            Text(
-              "ข้อความระหว่างกล่อง",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                "การพยากรณ์ 7วัน ล่วงหน้า",
+                style: TextStyle(fontSize: 18,fontFamily: "NotoSansThai", fontWeight: FontWeight.normal),
+              ),
             ),
-            SizedBox(height: 10), // เว้นระยะห่าง 10 ระหว่างข้อความและกล่องด้านล่าง
-
-            // กล่องที่ด้านล่าง
+            SizedBox(height: 10),
             Container(
               height: (MediaQuery.of(context).size.height - 150) / 5,
               width: double.infinity,
-              color: Colors.purple,
-              child: Center(child: Text("Bottom Box", style: TextStyle(color: Colors.white))),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  "Bottom Box",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
             ),
           ],
         ),
