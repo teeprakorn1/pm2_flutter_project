@@ -44,29 +44,39 @@ class _BoardingScreenState extends State<BoardingScreen> {
             ],
           ),
           Positioned(
-            top: 50, // ปุ่ม "เข้าใจแล้ว" อยู่ที่ตำแหน่ง 50 พิกเซลจากด้านบน
+            top: 90,
             right: 30,
-            child: ElevatedButton(
-              onPressed: () {
-                completeOnboarding(context);
+            child: InkWell(
+              onTap: () {
+                if (_currentPage == onboardingData.length - 1) {
+                  completeOnboarding(context);
+                } else {
+                  _pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFA45E5E),
-                shape: RoundedRectangleBorder(
+              child: Ink(
+                decoration: BoxDecoration(
+                  color: Color(0xFFA45E5E),
                   borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-              child: Text(
-                "ข้าม",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                  child: Text(
+                    _currentPage == onboardingData.length - 1 ? "เข้าใจแล้ว" : "ข้าม",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'NotoSansThai',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-
           Positioned(
             bottom: 150,
             left: 0,
@@ -111,8 +121,8 @@ List<Map<String, String>> onboardingData = [
   {
     "image": "assets/images/onboarding_man.png",
     "title": "ตรวจสอบได้ตลอดเวลา 24 ชั่วโมง",
-    "description": "Forecast PM2.5 เป็นแอปพลิเคชันดูสภาพอากาศตามGPS"
-        "ที่ตั้งใว้และตามสถานที่ที่ท่านเลือกดูสภาพอากาศ"
+    "description": "Forecast PM2.5 เป็นแอปพลิเคชันดูสภาพอากาศตาม GPS "
+        "ที่ตั้งไว้และตามสถานที่ที่ท่านเลือกดูสภาพอากาศ"
   },
   {
     "image": "assets/images/onboarding_thailand_map.png",
@@ -122,12 +132,12 @@ List<Map<String, String>> onboardingData = [
   {
     "image": "assets/images/onboarding_graph.png",
     "title": "สามารถดูกราฟเปรียบเทียบ",
-    "description": "เปรียบเทียบระหว่างค่าความจริงกับ ค่าที่พยากรณ์ย้อนหลัง 7 วัน"
+    "description": "เปรียบเทียบระหว่างค่าความจริงกับค่าที่พยากรณ์ย้อนหลัง 7 วัน"
   },
   {
     "image": "assets/images/onboarding_people.png",
     "title": "คู่มือแนะนำการป้องกัน PM2.5",
-    "description": "สามารถแนะนำการรับมือป้องกัน PM2.5 และแนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตฐาน"
+    "description": "สามารถแนะนำการรับมือป้องกัน PM2.5 และแนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตรฐาน"
   }
 ];
 
@@ -145,30 +155,33 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(image, height: 350), // Increased image size
-        SizedBox(height: 20),
-        Text(
-          title,
-          style: TextStyle(
-              fontSize: 28, // Increased font size for title
-              fontWeight: FontWeight.bold
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(image, height: 400),
+          SizedBox(height: 20),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 28,
+              fontFamily: 'NotoSansThai',
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        SizedBox(height: 10),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
+          SizedBox(height: 10),
+          Text(
             description,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 18, // Increased font size for description
+              fontSize: 20,
+              fontFamily: 'NotoSansThai',
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
