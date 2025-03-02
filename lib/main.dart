@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';  // เพิ่มการ import
+import 'package:flutter/services.dart';  // เพิ่มการ import
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
@@ -9,6 +10,10 @@ import 'boarding_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ตั้งค่าให้แอปใช้ได้เฉพาะในแนวตั้ง
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   await initializeApp();
 
   bool showBoarding = await shouldShowBoarding();  // Check if onboarding has been shown

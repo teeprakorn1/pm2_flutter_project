@@ -1,144 +1,203 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 class HomeScreen extends StatelessWidget {
-  final Color backgroundColor; // ตัวแปรสีพื้นหลัง
-
-  const HomeScreen({super.key, required this.backgroundColor}); // รับค่า backgroundColor ผ่านคอนสตรัคเตอร์
+  final Color backgroundColor;
+  const HomeScreen({super.key, required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor, // ใช้ตัวแปรนี้ในการตั้งสีพื้นหลัง
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 50),
-            Container(
-              height: (MediaQuery.of(context).size.height + 280) / 3,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text("Top Box", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-            SizedBox(height: 20),
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scaleFactor = screenWidth > 600 ? 1.5 : 1.0;
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: (MediaQuery.of(context).size.height - 100) / 8,
-                  width: (MediaQuery.of(context).size.width - 40) / 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 50),
+              Stack(
+                children: [
+                  Container(
+                    height: (screenHeight + 280) / 3 * scaleFactor,
+                    width: screenWidth * 0.9,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        Colors.blue.withOpacity(0.2),
+                        BlendMode.color,
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text("Box 1", style: TextStyle(color: Colors.black)),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Container(
-                  height: (MediaQuery.of(context).size.height - 100) / 8,
-                  width: (MediaQuery.of(context).size.width - 40) / 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/building-wallpaper.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                  child: Center(
-                    child: Text("Box 2", style: TextStyle(color: Colors.black)),
+                  Positioned(
+                    left: 25,
+                    top: (screenHeight + 280) / 16 * scaleFactor - 40,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 150 * scaleFactor,
+                          height: 150 * scaleFactor,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 120 * scaleFactor,
+                          height: 120 * scaleFactor,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset('assets/icons/cloud-haze-icon.svg', width: 60 * scaleFactor, height: 60 * scaleFactor,),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 10),
-                Container(
-                  height: (MediaQuery.of(context).size.height - 100) / 8,
-                  width: (MediaQuery.of(context).size.width - 40) / 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+                  Positioned(
+                    right: 20,
+                    top: 10,
+                    child: Text(
+                      "FORECAST PM2.5",
+                      style: TextStyle(
+                        fontSize: 16 * scaleFactor,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text("Box 3", style: TextStyle(color: Colors.black)),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
+                    ),
                   ),
                 ],
               ),
-              child: Text(
-                "การพยากรณ์ 7วัน ล่วงหน้า",
-                style: TextStyle(fontSize: 18,fontFamily: "NotoSansThai", fontWeight: FontWeight.normal),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              height: (MediaQuery.of(context).size.height - 150) / 5,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
+              SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildBox("Box 1", scaleFactor),
+                  SizedBox(width: 10),
+                  _buildBox("Box 2", scaleFactor),
+                  SizedBox(width: 10),
+                  _buildBox("Box 3", scaleFactor),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  "Bottom Box",
-                  style: TextStyle(color: Colors.black),
+              SizedBox(height: 30),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                width: screenWidth * 0.55,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    "การพยากรณ์ 7วัน ล่วงหน้า",
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.ltr,
+                    style: TextStyle(
+                      fontSize: 18 * scaleFactor,
+                      fontFamily: "NotoSansThai",
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
+              SizedBox(height: 20),
+              Container(
+                height: (screenHeight - 150) / 5 * scaleFactor,
+                width: screenWidth * 0.9,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    "Bottom Box",
+                    style: TextStyle(color: Colors.black, fontSize: 18 * scaleFactor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBox(String text, double scaleFactor) {
+    return Expanded(
+      child: Container(
+        height: 80 * scaleFactor,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
           ],
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(color: Colors.black, fontSize: 16 * scaleFactor),
+          ),
         ),
       ),
     );

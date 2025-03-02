@@ -32,7 +32,10 @@ flutter:
     - assets/images/onboarding_man.png
     - assets/images/onboarding_people.png
     - assets/images/onboarding_thailand_map.png
+    - assets/images/building-wallpaper.png
+    - assets/images/city-wallpaper.png
     - assets/icons/heart-icon.svg
+    - assets/icons/cloud-haze-icon.svg
 
   fonts:
     - family: Inter
