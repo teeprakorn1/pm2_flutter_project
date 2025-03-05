@@ -11,19 +11,17 @@ import 'boarding_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ตั้งค่าให้แอปใช้ได้เฉพาะในแนวตั้ง
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await initializeApp();
 
-  bool showBoarding = await shouldShowBoarding();  // Check if onboarding has been shown
+  bool showBoarding = await shouldShowBoarding();
   runApp(MyApp(showBoarding: showBoarding));
 }
 
-// ✅ Check if we should show the onboarding screen
 Future<bool> shouldShowBoarding() async {
   final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('boarding_completed') ?? true;  // If no value, show onboarding
+  return prefs.getBool('boarding_completed') ?? true;
 }
 
 Future<void> initializeApp() async {
@@ -67,7 +65,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomeScreen(backgroundColor: Color(0xFF7EE0F8)),
+    HomeScreen(backgroundColor: Color(0xFFFB8383)),
     MapScreen(),
     AdviceScreen(),
     GraphScreen(),
@@ -90,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(1)),
           boxShadow: [
             BoxShadow(
               color: Colors.black12,
@@ -110,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
             ],
             currentIndex: _selectedIndex,
             selectedItemColor: Color(0xFFD85E5E),
-            unselectedItemColor: Color(0x9E9E9EFF),
+            unselectedItemColor: Color(0xFF9E9E9E),
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
             elevation: 0,

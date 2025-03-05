@@ -25,6 +25,9 @@ class _BoardingScreenState extends State<BoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isTablet = screenWidth > 600;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -38,49 +41,49 @@ class _BoardingScreenState extends State<BoardingScreen> {
                     image: onboardingData[index]["image"]!,
                     title: onboardingData[index]["title"]!,
                     description: onboardingData[index]["description"]!,
+                    isTablet: isTablet,
                   ),
                 ),
               ),
             ],
           ),
           Positioned(
-            top: 90,
-            right: 30,
+            top: isTablet ? 50 : 90,
+            right: isTablet ? 50 : 30,
             child: InkWell(
               onTap: () {
                 completeOnboarding(context);
               },
-              child: Ink(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 40 : 30,
+                  vertical: isTablet ? 15 : 10,
+                ),
                 decoration: BoxDecoration(
                   color: Color(0xFFA45E5E),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  child: Text(
-                    _currentPage == onboardingData.length - 1
-                        ? "เข้าใจแล้ว"
-                        : "ข้าม",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'NotoSansThai',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                child: Text(
+                  _currentPage == onboardingData.length - 1 ? "เข้าใจแล้ว" : "ข้าม",
+                  style: TextStyle(
+                    fontSize: isTablet ? 24 : 20,
+                    fontFamily: 'NotoSansThai',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
           ),
           Positioned(
-            bottom: 150,
+            bottom: isTablet ? 100 : 80,
             left: 0,
             right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 onboardingData.length,
-                    (index) => buildDot(index, context),
+                    (index) => buildDot(index, context, isTablet),
               ),
             ),
           ),
@@ -99,14 +102,14 @@ class _BoardingScreenState extends State<BoardingScreen> {
     );
   }
 
-  Widget buildDot(int index, BuildContext context) {
+  Widget buildDot(int index, BuildContext context, bool isTablet) {
     return Container(
-      margin: EdgeInsets.only(right: 5),
-      height: 12,
-      width: 12,
+      margin: EdgeInsets.only(right: isTablet ? 8 : 5),
+      height: isTablet ? 16 : 12,
+      width: isTablet ? 16 : 12,
       decoration: BoxDecoration(
         color: _currentPage == index ? Color(0xFFD85E5E) : Colors.grey,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(isTablet ? 8 : 6),
       ),
     );
   }
@@ -140,43 +143,53 @@ class OnboardingPage extends StatelessWidget {
   final String image;
   final String title;
   final String description;
+  final bool isTablet;
 
   const OnboardingPage({
     super.key,
     required this.image,
     required this.title,
     required this.description,
+    required this.isTablet,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(image, height: 400),
-          SizedBox(height: 20),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 28,
-              fontFamily: 'NotoSansThai',
-              fontWeight: FontWeight.bold,
-            ),
+    double imageHeight = isTablet ? 450 : 300;
+    double titleFontSize = isTablet ? 32 : 24;
+    double descFontSize = isTablet ? 22 : 18;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: isTablet ? 50 : 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(image, height: imageHeight),
+              SizedBox(height: isTablet ? 30 : 20),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontFamily: 'NotoSansThai',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: isTablet ? 15 : 10),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: descFontSize,
+                  fontFamily: 'NotoSansThai',
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 10),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: 'NotoSansThai',
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
