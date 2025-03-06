@@ -39,6 +39,11 @@ flutter:
     - assets/images/onboarding_thailand_map.png
     - assets/images/building-wallpaper.png
     - assets/images/city-wallpaper.png
+    - assets/icons/pm-1-icon.png
+    - assets/icons/pm-2-icon.png
+    - assets/icons/pm-2-icon.png
+    - assets/icons/pm-3-icon.png
+    - assets/icons/pm-5-icon.png
     - assets/icons/heart-icon.svg
     - assets/icons/cloud-haze-icon.svg
 

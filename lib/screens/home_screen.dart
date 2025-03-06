@@ -412,10 +412,23 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         children: List.generate(7, (index) {
                           List<String> daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                          List<String> pmValues = ['20.2', '44.6', '101.8', '182.1', '200.1', '203.1', '205.1'];
+                          List<double> pmValues = [20.2, 44.6, 101.8, 182.1, 200.1, 203.1, 205.1]; // เปลี่ยนเป็น double
                           String day = daysOfWeek[index];
-                          String pm = pmValues[index];
-
+                          double pm = pmValues[index];
+                          String iconPath;
+                          if (pm >= 200) {
+                            iconPath = 'assets/icons/pm-5-icon.png';
+                          } else if (pm >= 100) {
+                            iconPath = 'assets/icons/pm-3-icon.png';
+                          } else if (pm >= 50) {
+                            iconPath = 'assets/icons/pm-2-icon.png';
+                          } else if (pm >= 25) {
+                            iconPath = 'assets/icons/pm-2-icon.png';
+                          } else if (pm >= 0) {
+                            iconPath = 'assets/icons/pm-1-icon.png';
+                          } else {
+                            iconPath = 'assets/icons/pm-1-icon.png';
+                          }
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Container(
@@ -434,14 +447,14 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(height: 5),
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 20 * scaleFactor,
-                                    color: Color(0xFF4A4949),
+                                  Image.asset(
+                                    iconPath,
+                                    width: 40 * scaleFactor,
+                                    height: 40 * scaleFactor,
                                   ),
                                   SizedBox(height: 5),
                                   Text(
-                                    pm,
+                                    pm.toStringAsFixed(1), // แสดงค่า PM1 ตำแหน่งทศนิยม
                                     style: TextStyle(
                                       color: Color(0xFF4A4949),
                                       fontSize: 16 * scaleFactor,
