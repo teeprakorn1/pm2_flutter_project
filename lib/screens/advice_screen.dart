@@ -44,11 +44,29 @@ class AdviceScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildBox(screenWidth, screenHeight, "assets/images/advice-aqi-wallpaper.png"),
+              _buildBox(
+                screenWidth,
+                screenHeight,
+                "assets/images/advice-aqi-wallpaper.png",
+                context,
+                1,
+              ),
               const SizedBox(height: 20),
-              _buildBox(screenWidth, screenHeight, "assets/images/advice-aqi-wallpaper.png"),
+              _buildBox(
+                screenWidth,
+                screenHeight,
+                "assets/images/advice-pm-wallpaper.jpg",
+                context,
+                2,
+              ),
               const SizedBox(height: 20),
-              _buildBox(screenWidth, screenHeight, "assets/images/advice-aqi-wallpaper.png"),
+              _buildBox(
+                screenWidth,
+                screenHeight,
+                "assets/images/advice-people-wallpaper.jpg",
+                context,
+                3,
+              ),
             ],
           ),
         ),
@@ -56,27 +74,90 @@ class AdviceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBox(double screenWidth, double screenHeight, String imagePath) {
-    return Align(
-      alignment: Alignment.center,
-      child: Container(
-        width: screenWidth * 0.9,
-        height: screenHeight * 0.21,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          image: DecorationImage(
-            image: AssetImage(imagePath),
-            fit: BoxFit.cover,
+  Widget _buildBox(
+    double screenWidth,
+    double screenHeight,
+    String imagePath,
+    BuildContext context,
+    int pageIndex,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              switch (pageIndex) {
+                case 1:
+                  return TopPage();
+                case 2:
+                  return MidPage();
+                case 3:
+                  return BottomPage();
+                default:
+                  return AdviceScreen();
+              }
+            },
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
+        );
+      },
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          width: screenWidth * 0.9,
+          height: screenHeight * 0.21,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            image: DecorationImage(
+              image: AssetImage(imagePath),
+              fit: BoxFit.cover,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class TopPage extends StatelessWidget {
+  const TopPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("AQI Information")),
+      body: Center(child: Text("This is the new page!")),
+    );
+  }
+}
+
+class MidPage extends StatelessWidget {
+  const MidPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("แจ้งเตือน")),
+      body: Center(child: Text("กำลังมาในเร็วๆนี้!!")),
+    );
+  }
+}
+
+class BottomPage extends StatelessWidget {
+  const BottomPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("แจ้งเตือน")),
+      body: Center(child: Text("กำลังมาในเร็วๆนี้!!")),
     );
   }
 }
