@@ -153,11 +153,12 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            '100 - 150',
+                            '75.1 ขึ้นไป',
                             style: TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontSize: 44 * scaleFactor,
                               fontWeight: FontWeight.bold,
+                              fontFamily: "NotoSansThai",
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.5),
@@ -412,17 +413,17 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         children: List.generate(7, (index) {
                           List<String> daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                          List<double> pmValues = [20.2, 44.6, 101.8, 182.1, 200.1, 203.1, 205.1];
+                          List<double> pmValues = [10.2, 21.6, 35.8, 64.1, 77.8, 79.3, 80.9];
                           String day = daysOfWeek[index];
                           double pm = pmValues[index];
                           String iconPath;
-                          if (pm >= 200) {
+                          if (pm >= 75) {
                             iconPath = 'assets/icons/pm-5-icon.png';
-                          } else if (pm >= 100) {
+                          } else if (pm >= 37.5) {
                             iconPath = 'assets/icons/pm-3-icon.png';
-                          } else if (pm >= 50) {
-                            iconPath = 'assets/icons/pm-2-icon.png';
                           } else if (pm >= 25) {
+                            iconPath = 'assets/icons/pm-2-icon.png';
+                          } else if (pm >= 15) {
                             iconPath = 'assets/icons/pm-2-icon.png';
                           } else if (pm >= 0) {
                             iconPath = 'assets/icons/pm-1-icon.png';
