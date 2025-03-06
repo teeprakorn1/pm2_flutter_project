@@ -135,7 +135,7 @@ List<Map<String, String>> onboardingData = [
   {
     "image": "assets/images/onboarding_people.png",
     "title": "คู่มือแนะนำการป้องกัน PM2.5",
-    "description": "สามารถแนะนำการรับมือป้องกัน PM2.5 และแนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตรฐาน"
+    "description": "ช่วยให้คำแนะนำวิธีการรับมือกับ PM2.5 อย่างถูกต้อง และ แนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตรฐาน"
   }
 ];
 

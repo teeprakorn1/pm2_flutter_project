@@ -412,7 +412,7 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         children: List.generate(7, (index) {
                           List<String> daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                          List<double> pmValues = [20.2, 44.6, 101.8, 182.1, 200.1, 203.1, 205.1]; // เปลี่ยนเป็น double
+                          List<double> pmValues = [20.2, 44.6, 101.8, 182.1, 200.1, 203.1, 205.1];
                           String day = daysOfWeek[index];
                           double pm = pmValues[index];
                           String iconPath;
@@ -454,7 +454,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   SizedBox(height: 5),
                                   Text(
-                                    pm.toStringAsFixed(1), // แสดงค่า PM1 ตำแหน่งทศนิยม
+                                    pm.toStringAsFixed(1),
                                     style: TextStyle(
                                       color: Color(0xFF4A4949),
                                       fontSize: 16 * scaleFactor,
