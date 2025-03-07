@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -74,18 +75,28 @@ class _MapScreenState extends State<MapScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _stations = (data['stations'] as List).map((station) {
-            return {
-              "name": station["nameTH"],
-              "position": LatLng(
-                double.parse(station["lat"]),
-                double.parse(station["long"]),
-              ),
-              "aqi": _parseValue(station["AQILast"]?["AQI"]?["aqi"]),
-              "PM25": _parseValue(station["AQILast"]?["PM25"]?["value"]),
-              "PM10": _parseValue(station["AQILast"]?["PM10"]?["value"]),
-            };
-          }).toList();
+          _stations =
+              (data['stations'] as List).map((station) {
+                return {
+                  "nameTH": station["nameTH"],
+                  "nameEN": station["nameEN"],
+                  "areaTH": station["areaTH"],
+                  "areaEN": station["areaEN"],
+                  "position": LatLng(
+                    double.parse(station["lat"]),
+                    double.parse(station["long"]),
+                  ),
+                  "date": _parseValue(station["AQILast"]?["date"]),
+                  "time": _parseValue(station["AQILast"]?["time"]),
+                  "aqi": _parseValue(station["AQILast"]?["AQI"]?["aqi"]),
+                  "PM25": _parseValue(station["AQILast"]?["PM25"]?["value"]),
+                  "PM10": _parseValue(station["AQILast"]?["PM10"]?["value"]),
+                  "O3": _parseValue(station["AQILast"]?["O3"]?["value"]),
+                  "CO": _parseValue(station["AQILast"]?["CO"]?["value"]),
+                  "NO2": _parseValue(station["AQILast"]?["NO2"]?["value"]),
+                  "SO2": _parseValue(station["AQILast"]?["SO2"]?["value"]),
+                };
+              }).toList();
         });
       }
     } catch (e) {
@@ -99,7 +110,6 @@ class _MapScreenState extends State<MapScreen> {
     }
     return value.toString();
   }
-
 
   void _zoomToStation(LatLng stationPosition) {
     _previousZoom = _mapController.zoom;
@@ -129,16 +139,82 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  void showCustomDialog(BuildContext context, Map<String, dynamic> station) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: DefaultTextStyle(
+              style: TextStyle(
+                fontFamily: 'NotoSansThai',
+                color: Colors.black,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    station["nameTH"],
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    station["nameEN"],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text("📍 ${station["areaTH"]}"),
+                  Text("📍 ${station["areaEN"]}"),
+                  SizedBox(height: 10),
+                  Text(
+                    "🌍 พิกัด: ${station['position'].latitude}   ${station['position'].longitude}",
+                  ),
+                  SizedBox(height: 10),
+                  Divider(),
+                  Text("📊 ข้อมูลคุณภาพอากาศล่าสุด:"),
+                  Text("🕒 วันที่ ${station["date"]} เวลา ${station["time"]}"),
+                  Text("💨 PM10:  ${station["aqi"]}"),
+                  Text("💨 PM2.5:  ${station["PM25"]}"),
+                  Text("💨 PM10:  ${station["PM10"]}"),
+                  Text("💨 O3:  ${station["O3"]}"),
+                  Text("💨 CO:  ${station["CO"]}"),
+                  Text("💨 NO2:  ${station["NO2"]}"),
+                  Text("💨 SO2:  ${station["SO2"]}"),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("ปิด"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showSnackbar(
-      String message, {
-        Color backgroundColor = Colors.black,
-        Color textColor = Colors.white,
-        Duration duration = const Duration(seconds: 4),
-        String actionLabel = '',
-        VoidCallback? onAction,
-        double fontSize = 14.0,
-        String fontFamily = 'NotoSansThai',
-      }) {
+    String message, {
+    Color backgroundColor = Colors.black,
+    Color textColor = Colors.white,
+    Duration duration = const Duration(seconds: 4),
+    String actionLabel = '',
+    VoidCallback? onAction,
+    double fontSize = 14.0,
+    String fontFamily = 'NotoSansThai',
+  }) {
     final snackBar = SnackBar(
       content: Text(
         message,
@@ -157,15 +233,15 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       elevation: 6,
-      action: actionLabel.isNotEmpty
-          ? SnackBarAction(
-        label: actionLabel,
-        onPressed: onAction ?? () {},
-        textColor: textColor,
-      )
-          : null,
+      action:
+          actionLabel.isNotEmpty
+              ? SnackBarAction(
+                label: actionLabel,
+                onPressed: onAction ?? () {},
+                textColor: textColor,
+              )
+              : null,
     );
-
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -209,27 +285,25 @@ class _MapScreenState extends State<MapScreen> {
                           (ctx) => GestureDetector(
                             onTap: () {
                               _showSnackbar(
-                                "Station : ${station["name"]}\n\n"
-                                    "🌫️ AQI : ${station["aqi"]}\n"
-                                    "💨 PM2.5 : ${station["PM25"]}\n"
-                                    "💨 PM10 : ${station["PM10"]}",
-                                // backgroundColor: Color(0xFF4A4949),
+                                "Station : ${station["nameTH"]}\n\n"
+                                "🌫️ AQI : ${station["aqi"]}\n"
+                                "💨 PM2.5 : ${station["PM25"]}\n"
+                                "💨 PM10 : ${station["PM10"]}\n",
                                 backgroundColor: Color(0xFFF3F3F3),
                                 textColor: Colors.black,
-                                actionLabel: 'More Info',
+                                actionLabel: 'MORE INFO',
                                 fontSize: 16.0,
                                 fontFamily: 'NotoSansThai',
                                 onAction: () {
-                                  print('Action button pressed');
+                                  showCustomDialog(context, station);
                                 },
                               );
-
                               _zoomToStation(station["position"]);
                             },
                             child: const MyMapMarker(),
                           ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ],
