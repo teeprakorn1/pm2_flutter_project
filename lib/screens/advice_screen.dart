@@ -137,56 +137,51 @@ class TopPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text("AQI Information")),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: screenHeight * 0.07,
-              left: 16.0,
-              right: 16.0,
-            ),
-            child: Container(
-              width: screenWidth * 0.9,
-              padding: EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 8.0,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: screenHeight * 0.03,
+            left: 16,
+            right: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: screenWidth * 1,
+                height: screenHeight * 0.74,
+                padding: EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      blurRadius: 8.0,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Station Name",
+              SizedBox(height: 20),
+              Positioned(
+                child: Center(
+                  child: Text(
+                    "อ้างอิงข้อมูลจาก กองจัดการคุณภาพอากาศและเสียง กรมควบคุมมลพิษ",
                     style: TextStyle(
-                      fontSize: 24 * scaleFactor,
+                      fontFamily: "NotoSansThai",
+                      fontSize: 12 * scaleFactor,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("AQI Level", style: TextStyle(fontSize: 18)),
-                      Text(
-                        "75",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFC0F03),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
