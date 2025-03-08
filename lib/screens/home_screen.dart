@@ -342,7 +342,7 @@ class HomeScreen extends StatelessWidget {
                   SizedBox(width: 10),
                   _buildBox("TEMPERATURE", "39 °C", Icons.thermostat, scaleFactor,),
                   SizedBox(width: 10),
-                  _buildBox("AQI", "29.6", Icons.air, scaleFactor),
+                  _buildBox("Humidity", "29.6", Icons.air, scaleFactor),
                 ],
               ),
               SizedBox(height: 20),

@@ -119,23 +119,24 @@ List<Map<String, String>> onboardingData = [
   {
     "image": "assets/images/onboarding_man.png",
     "title": "ตรวจสอบได้ตลอดเวลา 24 ชั่วโมง",
-    "description": "Forecast PM2.5 เป็นแอปพลิเคชันดูสภาพอากาศตาม GPS "
-        "ที่ตั้งไว้และตามสถานที่ที่ท่านเลือกดูสภาพอากาศ"
+    "description": "Forecast PM2.5 เป็นแอปพลิเคชันสำหรับดูสภาพอากาศทุกสถานีตรวจวัดทั่วประเทศ"
+        "และสามารถดูค่าพยากรณ์ฝุ่น PM2.5 ล่วงหน้า 7 วัน ได้ทุกจังหวัด อีกทั้งยังสามารถดููจังหวัดที่ใกล้ที่สุด"
+        "ตาม GPS ของคุณได้"
   },
   {
     "image": "assets/images/onboarding_thailand_map.png",
-    "title": "ตรวจสอบได้ทุกที่",
-    "description": "สามารถตรวจสอบสภาพอากาศ ณ ที่ท่านอยู่หรือดูทั่วประเทศไทย"
+    "title": "แผนที่คุณภาพอากาศ",
+    "description": "สามารถดูคุณภาพอากาศตามสถานีตรวจวัดทั่วประเทศ ในรูปแบบแผนที่"
   },
   {
     "image": "assets/images/onboarding_graph.png",
-    "title": "สามารถดูกราฟเปรียบเทียบ",
+    "title": "กราฟเปรียบเทียบ",
     "description": "เปรียบเทียบระหว่างค่าความจริงกับค่าที่พยากรณ์ย้อนหลัง 7 วัน"
   },
   {
     "image": "assets/images/onboarding_people.png",
     "title": "คู่มือแนะนำการป้องกัน PM2.5",
-    "description": "ช่วยให้คำแนะนำวิธีการรับมือกับ PM2.5 อย่างถูกต้อง และ แนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตรฐาน"
+    "description": "ช่วยให้คำแนะนำวิธีการรับมือกับ PM2.5  อย่างถูกต้อง และ แนะนำอุปกรณ์ป้องกัน PM2.5 ที่ได้มาตรฐาน"
   }
 ];
 
@@ -157,7 +158,7 @@ class OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double imageHeight = isTablet ? 450 : 300;
     double titleFontSize = isTablet ? 32 : 24;
-    double descFontSize = isTablet ? 22 : 18;
+    double descFontSize = isTablet ? 22 : 16;
 
     return LayoutBuilder(
       builder: (context, constraints) {
