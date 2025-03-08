@@ -131,9 +131,65 @@ class TopPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scaleFactor = screenWidth > 600 ? 1.5 : 1.0;
+
     return Scaffold(
       appBar: AppBar(title: Text("AQI Information")),
-      body: Center(child: Text("This is the new page!")),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: screenHeight * 0.07,
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Container(
+              width: screenWidth * 0.9,
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 8.0,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Station Name",
+                    style: TextStyle(
+                      fontSize: 24 * scaleFactor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("AQI Level", style: TextStyle(fontSize: 18)),
+                      Text(
+                        "75",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFC0F03),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -145,7 +201,12 @@ class MidPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("แจ้งเตือน")),
-      body: Center(child: Text("กำลังมาในเร็วๆนี้!!")),
+      body: Center(
+        child: Text(
+          "กำลังจะมาในเร็วๆนี้!!",
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 }
@@ -157,7 +218,12 @@ class BottomPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("แจ้งเตือน")),
-      body: Center(child: Text("กำลังมาในเร็วๆนี้!!")),
+      body: Center(
+        child: Text(
+          "กำลังจะมาในเร็วๆนี้!!",
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 }
