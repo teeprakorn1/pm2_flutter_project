@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -150,10 +150,7 @@ class _MapScreenState extends State<MapScreen> {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: DefaultTextStyle(
-              style: TextStyle(
-                fontFamily: 'NotoSansThai',
-                color: Colors.black,
-              ),
+              style: TextStyle(fontFamily: 'NotoSansThai', color: Colors.black),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,8 +177,10 @@ class _MapScreenState extends State<MapScreen> {
                   SizedBox(height: 10),
                   Divider(),
                   Text("📊 ข้อมูลคุณภาพอากาศล่าสุด:"),
-                  Text("🕒 วันที่ ${station["date"]} เวลา ${station["time"]}"),
-                  Text("💨 PM10:  ${station["aqi"]}"),
+                  Text(
+                    "🕒 วันที่  ${DateFormat('dd-MM-yyyy').format(DateTime.parse(station["date"]))}  เวลา ${station["time"]}",
+                  ),
+                  Text("💨 AQI:  ${station["aqi"]}"),
                   Text("💨 PM2.5:  ${station["PM25"]}"),
                   Text("💨 PM10:  ${station["PM10"]}"),
                   Text("💨 O3:  ${station["O3"]}"),
@@ -193,7 +192,37 @@ class _MapScreenState extends State<MapScreen> {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text("ปิด"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFE85555),
+                        foregroundColor: Color(0xFFFFFFFF),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        shadowColor: Colors.black.withOpacity(0.3),
+                        elevation: 5,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.arrow_back,
+                            size: 20,
+                            color: Color(0xFFFFFFFF),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "ย้อนกลับ",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: "NotoSansThai",
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -300,7 +329,7 @@ class _MapScreenState extends State<MapScreen> {
                               );
                               _zoomToStation(station["position"]);
                             },
-                            child: const MyMapMarker(),
+                            child: MyMapMarker(station: station),
                           ),
                     );
                   }),
@@ -324,12 +353,17 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       const Text(
                         'กำลังกลับสู่ตำแหน่งเดิม',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'NotoSansThai',
+                          fontSize: 16,
+                        ),
                       ),
                       Text(
                         'ในอีก $_countdownTime วินาที',
                         style: const TextStyle(
                           color: Colors.white,
+                          fontFamily: 'NotoSansThai',
                           fontSize: 14,
                         ),
                       ),
@@ -372,37 +406,147 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
           ),
+          Positioned(
+            top: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(3, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLegendItem('🔵 ดีเยี่ยม', Colors.blue),
+                  _buildLegendItem('🟢 ดี', Colors.green),
+                  _buildLegendItem('🟡 ปานกลาง', Colors.yellow),
+                  _buildLegendItem('🟠 แย่', Colors.orange),
+                  _buildLegendItem('🔴 อันตราย', Colors.red),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String text, Color color) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: color,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'NotoSansThai',
+        shadows: [
+          Shadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(1, 1),
+          ),
         ],
       ),
     );
   }
 }
 
-class MyMapMarker extends StatelessWidget {
-  const MyMapMarker({super.key});
+class MyMapMarker extends StatefulWidget {
+  final Map<String, dynamic> station;
+
+  const MyMapMarker({super.key, required this.station});
+
+  @override
+  _MyMapMarkerState createState() => _MyMapMarkerState();
+}
+
+class _MyMapMarkerState extends State<MyMapMarker> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 5),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Color getAqiColor(int aqi) {
+    if (aqi > 75) {
+      return Color(0xFFFC0F03);
+    } else if (aqi > 37.5) {
+      return Color(0xFFFAA604);
+    } else if (aqi > 25) {
+      return Color(0xFFEAEB5D);
+    } else if (aqi > 15) {
+      return Color(0xFF43E736);
+    } else if (aqi > 0) {
+      return Color(0xFF00CCFF);
+    }
+    return Colors.grey;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 25,
-          height: 25,
-          decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.3),
-            shape: BoxShape.circle,
+    int aqi = int.tryParse(widget.station["aqi"].toString()) ?? 0;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _controller.value * 2 * 3.14159,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 25,
+                height: 25,
+                decoration: BoxDecoration(
+                  color: getAqiColor(aqi).withOpacity(0.3),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF2E2E2E).withOpacity(0.2),
+                      offset: Offset(2, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 15,
+                height: 15,
+                decoration: BoxDecoration(
+                  color: getAqiColor(aqi),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF2E2E2E).withOpacity(0.3),
+                      offset: Offset(2, 2),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-        Container(
-          width: 15,
-          height: 15,
-          decoration: const BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -416,18 +560,18 @@ class MyLocationMarker extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Container(
-          width: 30,
-          height: 30,
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
             color: Colors.blue.withOpacity(0.3),
             shape: BoxShape.circle,
           ),
         ),
         Container(
-          width: 20,
-          height: 20,
+          width: 30,
+          height: 30,
           decoration: const BoxDecoration(
-            color: Colors.blue,
+            color: Color(0xFF005B78),
             shape: BoxShape.circle,
           ),
         ),
