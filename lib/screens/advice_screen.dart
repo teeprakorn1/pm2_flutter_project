@@ -148,8 +148,7 @@ class TopPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: screenWidth * 1,
-                height: screenHeight * 0.74,
+                width: screenWidth,
                 padding: EdgeInsets.all(20.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -163,27 +162,127 @@ class TopPage extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [],
+                  children: [
+                    _buildBox(
+                      "0 - 25",
+                      "ระดับคุณภาพอากาศดีเยี่ยม",
+                      Color(0xFF00CCFF),
+                      screenHeight,
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                    SizedBox(height: 20),
+                    _buildBox(
+                      "26 - 50",
+                      "ระดับคุณภาพอากาศดี",
+                      Color(0xFF43E736),
+                      screenHeight,
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                    SizedBox(height: 20),
+                    _buildBox(
+                      "51 - 100",
+                      "ระดับคุณภาพอากาศปานกลาง",
+                      Color(0xFFEAEB5D),
+                      screenHeight,
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                    SizedBox(height: 20),
+                    _buildBox(
+                      "101 - 200",
+                      "ระดับคุณภาพอากาศเริ่มมีผลกระทบต่อสุขภาพ",
+                      Color(0xFFFAA604),
+                      screenHeight,
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                    SizedBox(height: 20),
+                    _buildBox(
+                      "200 ขึ้นไป",
+                      "ระดับคุณภาพอากาศมีผลกระทบต่อสุขภาพ",
+                      Color(0xFFFC0F03),
+                      screenHeight,
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 20),
-              Positioned(
-                child: Center(
-                  child: Text(
-                    "อ้างอิงข้อมูลจาก กองจัดการคุณภาพอากาศและเสียง กรมควบคุมมลพิษ",
-                    style: TextStyle(
-                      fontFamily: "NotoSansThai",
-                      fontSize: 12 * scaleFactor,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  "อ้างอิงข้อมูลจาก กองจัดการคุณภาพอากาศและเสียง กรมควบคุมมลพิษ",
+                  style: TextStyle(
+                    fontFamily: "NotoSansThai",
+                    fontSize: 12 * scaleFactor,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBox(
+    String value,
+    String detail,
+    Color color,
+    double screenHeight,
+    double screenWidth,
+    double scaleFactor,
+  ) {
+    double boxWidth = screenWidth * (screenWidth > 600 ? 0.4 : 0.75);
+    return Container(
+      width: boxWidth,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(vertical: 20 * scaleFactor),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: (screenWidth > 600 ? 40 : 30) * scaleFactor,
+              fontWeight: FontWeight.w900,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.5),
+                  offset: Offset(2.0, 2.0),
+                  blurRadius: 5.0,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            detail,
+            style: TextStyle(
+              color: Color(0xFF030000),
+              fontSize: (screenWidth > 600 ? 18 : 15) * scaleFactor,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'NotoSansThai',
+            ),
+          ),
+        ],
       ),
     );
   }
