@@ -131,102 +131,89 @@ class TopPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-    double scaleFactor = screenWidth > 600 ? 1.5 : 1.0;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scaleFactor = screenWidth > 600 ? 1.5 : 1.0;
 
     return Scaffold(
-      appBar: AppBar(title: Text("AQI Information")),
+      appBar: AppBar(title: const Text("AQI Information")),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: screenHeight * 0.03,
-            left: 16,
-            right: 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: screenWidth,
-                padding: EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 8.0,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildBox(
-                      "0 - 25",
-                      "ระดับคุณภาพอากาศดีเยี่ยม",
-                      Color(0xFF00CCFF),
-                      screenHeight,
-                      screenWidth,
-                      scaleFactor,
-                    ),
-                    SizedBox(height: 20),
-                    _buildBox(
-                      "26 - 50",
-                      "ระดับคุณภาพอากาศดี",
-                      Color(0xFF43E736),
-                      screenHeight,
-                      screenWidth,
-                      scaleFactor,
-                    ),
-                    SizedBox(height: 20),
-                    _buildBox(
-                      "51 - 100",
-                      "ระดับคุณภาพอากาศปานกลาง",
-                      Color(0xFFEAEB5D),
-                      screenHeight,
-                      screenWidth,
-                      scaleFactor,
-                    ),
-                    SizedBox(height: 20),
-                    _buildBox(
-                      "101 - 200",
-                      "ระดับคุณภาพอากาศเริ่มมีผลกระทบต่อสุขภาพ",
-                      Color(0xFFFAA604),
-                      screenHeight,
-                      screenWidth,
-                      scaleFactor,
-                    ),
-                    SizedBox(height: 20),
-                    _buildBox(
-                      "200 ขึ้นไป",
-                      "ระดับคุณภาพอากาศมีผลกระทบต่อสุขภาพ",
-                      Color(0xFFFC0F03),
-                      screenHeight,
-                      screenWidth,
-                      scaleFactor,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "อ้างอิงข้อมูลจาก กองจัดการคุณภาพอากาศและเสียง กรมควบคุมมลพิษ",
-                  style: TextStyle(
-                    fontFamily: "NotoSansThai",
-                    fontSize: 12 * scaleFactor,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: screenHeight * 0.03,
         ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildInfoCard(screenWidth, scaleFactor),
+            const SizedBox(height: 20),
+            _buildReferenceText(scaleFactor),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(double screenWidth, double scaleFactor) {
+    final List<Map<String, dynamic>> aqiLevels = [
+      {
+        "range": "0 - 25",
+        "description": "ระดับคุณภาพอากาศดีเยี่ยม",
+        "color": const Color(0xFF00CCFF),
+      },
+      {
+        "range": "26 - 50",
+        "description": "ระดับคุณภาพอากาศดี",
+        "color": const Color(0xFF43E736),
+      },
+      {
+        "range": "51 - 100",
+        "description": "ระดับคุณภาพอากาศปานกลาง",
+        "color": const Color(0xFFEAEB5D),
+      },
+      {
+        "range": "101 - 200",
+        "description": "ระดับคุณภาพอากาศเริ่มมีผลกระทบต่อสุขภาพ",
+        "color": const Color(0xFFFAA604),
+      },
+      {
+        "range": "200 ขึ้นไป",
+        "description": "ระดับคุณภาพอากาศมีผลกระทบต่อสุขภาพ",
+        "color": const Color(0xFFFC0F03),
+      },
+    ];
+
+    return Container(
+      width: screenWidth,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children:
+            aqiLevels
+                .map(
+                  (level) => Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: _buildBox(
+                      level["range"],
+                      level["description"],
+                      level["color"],
+                      screenWidth,
+                      scaleFactor,
+                    ),
+                  ),
+                )
+                .toList(),
       ),
     );
   }
@@ -235,13 +222,11 @@ class TopPage extends StatelessWidget {
     String value,
     String detail,
     Color color,
-    double screenHeight,
     double screenWidth,
     double scaleFactor,
   ) {
-    double boxWidth = screenWidth * (screenWidth > 600 ? 0.4 : 0.75);
     return Container(
-      width: boxWidth,
+      width: screenWidth * (screenWidth > 600 ? 0.4 : 0.75),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
@@ -249,7 +234,7 @@ class TopPage extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.5),
             blurRadius: 5,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -266,23 +251,43 @@ class TopPage extends StatelessWidget {
               shadows: [
                 Shadow(
                   color: Colors.black.withOpacity(0.5),
-                  offset: Offset(2.0, 2.0),
-                  blurRadius: 5.0,
+                  offset: const Offset(2, 2),
+                  blurRadius: 5,
                 ),
               ],
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             detail,
             style: TextStyle(
-              color: Color(0xFF030000),
+              color: Colors.black,
               fontSize: (screenWidth > 600 ? 18 : 15) * scaleFactor,
               fontWeight: FontWeight.normal,
               fontFamily: 'NotoSansThai',
             ),
+            textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReferenceText(double scaleFactor) {
+    return Align(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Text(
+          "อ้างอิงข้อมูลจาก กองจัดการคุณภาพอากาศและเสียง กรมควบคุมมลพิษ",
+          style: TextStyle(
+            fontFamily: "NotoSansThai",
+            fontSize: 12 * scaleFactor,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
