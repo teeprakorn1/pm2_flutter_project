@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:diacritic/diacritic.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -28,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String airTemperature = "-1";
   String relativeHumidity = "-1";
   String rainfall = "-1";
+  String dateData = "-1";
+  String dayData = "-1";
+  int aqiValue = -1;
+  String pmString = '-1';
+  String imagePath = 'assets/images/building-red-wallpaper.png';
+  Color backgroundColors = Colors.red;
   LatLng _currentLatLng = LatLng(0, 0);
 
   Future<void> loadData() async {
@@ -50,7 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (predictionData['status'] != false) {
           _closestStationName = predictionData['Province_Name'];
+          dateData = predictionData['created_at'];
           pmValues = extractPMValues(predictionData);
+          checkValuePM();
 
           Map<String, dynamic> weatherData = await setDistanceWeatherArea(
             double.tryParse(stationData["long"].toString()) ?? 0.0,
@@ -60,13 +67,19 @@ class _HomeScreenState extends State<HomeScreen> {
           if (weatherData['status'] != false) {
             setState(() {
               airTemperature = extractWeatherValue(
-                  weatherData['station']['Observation']['AirTemperature']);
+                weatherData['station']['Observation']['AirTemperature'],
+              );
               relativeHumidity = extractWeatherValue(
-                  weatherData['station']['Observation']['RelativeHumidity']);
+                weatherData['station']['Observation']['RelativeHumidity'],
+              );
               rainfall = extractWeatherValue(
-                  weatherData['station']['Observation']['Rainfall']);
-              print('DataTrue: $rainfall and $airTemperature and $relativeHumidity');
+                weatherData['station']['Observation']['Rainfall'],
+              );
+              print(
+                'DataTrue: $rainfall and $airTemperature and $relativeHumidity',
+              );
               print('PM2.5 Predictions: $pmValues');
+              setBackgroundColor();
             });
           } else {
             _closestStationName = "-1";
@@ -82,6 +95,55 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } else {
       stationID = "-1";
+    }
+  }
+
+  void setBackgroundColor() {
+    aqiValue = checkValueAqi(int.parse(aqi));
+    if (aqiValue == 5) {
+      backgroundColors = Colors.red;
+      imagePath = "assets/images/building-red-wallpaper.png";
+    } else if (aqiValue == 4) {
+      backgroundColors = Colors.orange;
+      imagePath = "assets/images/building-orange-wallpaper.png";
+    } else if (aqiValue == 3) {
+      backgroundColors = Colors.yellow;
+      imagePath = "assets/images/building-yellow-wallpaper.png";
+    } else if (aqiValue == 2) {
+      backgroundColors = Colors.green;
+      imagePath = "assets/images/building-green-wallpaper.png";
+    } else if (aqiValue == 1) {
+      backgroundColors = Colors.blue;
+      imagePath = "assets/images/building-blue-wallpaper.png";
+    }
+  }
+
+  int checkValueAqi(int aqis) {
+    print("aqis: " + aqis.toString());
+    if (aqis >= 201) {
+      return 5;
+    } else if (aqis >= 101) {
+      return 4;
+    } else if (aqis >= 51) {
+      return 3;
+    } else if (aqis >= 26) {
+      return 2;
+    } else {
+      return 1;
+    }
+  }
+
+  void checkValuePM() {
+    if (pmValues[0] >= 75) {
+      pmString = "มากกว่า 75.0";
+    } else if (pmValues[0] >= 37.5) {
+      pmString = "37.6 - 75.0";
+    } else if (pmValues[0] >= 25) {
+      pmString = "25.1 - 37.5";
+    } else if (pmValues[0] >= 15) {
+      pmString = "15.1 - 25.0";
+    } else {
+      pmString = "ต่ำกว่า 15.0";
     }
   }
 
@@ -281,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double scaleFactor = screenWidth > 600 ? 1.5 : 1.0;
 
     return Scaffold(
-      backgroundColor: widget.backgroundColor,
+      backgroundColor: backgroundColors,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -309,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.asset(
-                      'assets/images/building-wallpaper.png',
+                      imagePath,
                       width: screenWidth * 0.9,
                       height: (screenHeight + 320) / 3 * scaleFactor,
                       fit: BoxFit.cover,
@@ -422,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "1 - 100",
+                            pmString,
                             style: TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontSize: 44 * scaleFactor,
@@ -667,7 +729,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     "การพยากรณ์ 7วัน ล่วงหน้า",
                     textAlign: TextAlign.center,
-                    textDirection: TextDirection.ltr,
                     style: TextStyle(
                       fontSize: 16 * scaleFactor,
                       fontFamily: "NotoSansThai",
@@ -696,7 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
-                        "12 December 2025",
+                        dateData,
                         style: TextStyle(
                           color: Colors.black87,
                           fontSize: 14 * scaleFactor,
@@ -711,11 +772,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         children: List.generate(7, (index) {
                           List<String> daysOfWeek = [
-                            'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'
+                            'SUN',
+                            'MON',
+                            'TUE',
+                            'WED',
+                            'THU',
+                            'FRI',
+                            'SAT',
                           ];
-                          double pm = (pmValues.isNotEmpty && index < pmValues.length)
-                              ? pmValues[index]
-                              : 0.0;
+                          double pm =
+                              (pmValues.isNotEmpty && index < pmValues.length)
+                                  ? pmValues[index]
+                                  : 0.0;
                           String day = daysOfWeek[index];
                           String iconPath;
 
@@ -732,10 +800,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
 
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                            ),
                             child: Container(
                               width: 50 * scaleFactor,
-                              padding: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.symmetric(vertical: 9),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -759,7 +829,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     pm.toStringAsFixed(1),
                                     style: TextStyle(
                                       color: Color(0xFF4A4949),
-                                      fontSize: 16 * scaleFactor,
+                                      fontSize: 14 * scaleFactor,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Inter",
                                     ),
@@ -876,16 +946,19 @@ class _SearchPageState extends State<SearchPage> {
     String normalizedQuery = query.trim().toLowerCase();
 
     setState(() {
-      _filteredStations = widget.stations.where((station) {
-        String nameTH = station["nameTH"].toLowerCase();
-        String nameEN = station["nameEN"].toLowerCase();
+      _filteredStations =
+          widget.stations.where((station) {
+            String nameTH = station["nameTH"].toLowerCase();
+            String nameEN = station["nameEN"].toLowerCase();
 
-        return RegExp(normalizedQuery, caseSensitive: false).hasMatch(nameTH) ||
-            RegExp(normalizedQuery, caseSensitive: false).hasMatch(nameEN);
-      }).toList();
+            return RegExp(
+                  normalizedQuery,
+                  caseSensitive: false,
+                ).hasMatch(nameTH) ||
+                RegExp(normalizedQuery, caseSensitive: false).hasMatch(nameEN);
+          }).toList();
     });
   }
-
 
   Future<void> saveData(String stationID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
