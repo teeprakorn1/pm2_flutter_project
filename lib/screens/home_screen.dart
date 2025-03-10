@@ -1,11 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:math';
 
 import '../constants/strings.dart';
 import '../main.dart';
@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _stations = [];
+  List<double> pmValues = [];
   String _closestStationName = "-1";
   String stationID = "-1";
   String aqi = "-1";
@@ -37,9 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (pd == "SearchPage" && std != null) {
       stationID = std;
       Map<String, dynamic> stationData = await getStationId(stationID);
+
       if (stationData['status'] != false) {
-        aqi = stationData["AQILast"]?["AQI"]?["aqi"];
-        pm25 = stationData["AQILast"]?["PM25"]?["value"];
+        aqi = stationData["AQILast"]?["AQI"]?["aqi"] ?? "-1";
+        pm25 = stationData["AQILast"]?["PM25"]?["value"] ?? "-1";
 
         Map<String, dynamic> predictionData = await getTopPredictions(
           stationData['areaTH'],
@@ -48,27 +50,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (predictionData['status'] != false) {
           _closestStationName = predictionData['Province_Name'];
+          pmValues = extractPMValues(predictionData);
+
           Map<String, dynamic> weatherData = await setDistanceWeatherArea(
-            double.parse(stationData["long"]),
-            double.parse(stationData["lat"]),
+            double.tryParse(stationData["long"].toString()) ?? 0.0,
+            double.tryParse(stationData["lat"].toString()) ?? 0.0,
           );
+
           if (weatherData['status'] != false) {
             setState(() {
-              airTemperature = double.parse(weatherData['station']['Observation']['AirTemperature']['_']).toString();
-              relativeHumidity = double.parse(weatherData['station']['Observation']['RelativeHumidity']['_']).toString();
-              rainfall = double.parse(weatherData['station']['Observation']['Rainfall']['_']).toString();
+              airTemperature = extractWeatherValue(
+                  weatherData['station']['Observation']['AirTemperature']);
+              relativeHumidity = extractWeatherValue(
+                  weatherData['station']['Observation']['RelativeHumidity']);
+              rainfall = extractWeatherValue(
+                  weatherData['station']['Observation']['Rainfall']);
               print('DataTrue: $rainfall and $airTemperature and $relativeHumidity');
+              print('PM2.5 Predictions: $pmValues');
             });
-          }else{
+          } else {
             _closestStationName = "-1";
-            print('Error: ${weatherData['message']}');
+            print('Error: Weather data error - ${weatherData['message']}');
           }
         } else {
           _closestStationName = "-1";
-          print('Error: ${stationData['message']}');
+          print('Error: Prediction data error - ${predictionData['message']}');
         }
       } else {
-        print('Error: ${stationData['message']}');
+        print('Error: Station data error - ${stationData['message']}');
         _closestStationName = "-1";
       }
     } else {
@@ -76,6 +85,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  List<double> extractPMValues(Map<String, dynamic> data) {
+    return [
+      data["predicted1day_pm25"] ?? 0.0,
+      data["predicted2day_pm25"] ?? 0.0,
+      data["predicted3day_pm25"] ?? 0.0,
+      data["predicted4day_pm25"] ?? 0.0,
+      data["predicted5day_pm25"] ?? 0.0,
+      data["predicted6day_pm25"] ?? 0.0,
+      data["predicted7day_pm25"] ?? 0.0,
+    ].map((e) => e is num ? e.toDouble() : 0.0).toList();
+  }
+
+  String extractWeatherValue(dynamic data) {
+    if (data != null && data['_'] != null) {
+      return double.tryParse(data['_'].toString())?.toString() ?? "-1";
+    }
+    return "-1";
+  }
 
   Future<Map<String, dynamic>> getStationId(String stationID) async {
     final url = Uri.parse(AppStrings.apiGetAir4thaiStationId);
@@ -130,7 +157,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<Map<String, dynamic>> setDistanceWeatherArea(double myLong, double myLat) async {
+  Future<Map<String, dynamic>> setDistanceWeatherArea(
+    double myLong,
+    double myLat,
+  ) async {
     final url = Uri.parse(AppStrings.apiSetDistanceWeatherArea);
 
     try {
@@ -681,26 +711,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         children: List.generate(7, (index) {
                           List<String> daysOfWeek = [
-                            'SUN',
-                            'MON',
-                            'TUE',
-                            'WED',
-                            'THU',
-                            'FRI',
-                            'SAT',
+                            'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'
                           ];
-                          List<double> pmValues = [
-                            10.2,
-                            21.6,
-                            35.8,
-                            64.1,
-                            77.8,
-                            79.3,
-                            80.9,
-                          ];
+                          double pm = (pmValues.isNotEmpty && index < pmValues.length)
+                              ? pmValues[index]
+                              : 0.0;
                           String day = daysOfWeek[index];
-                          double pm = pmValues[index];
                           String iconPath;
+
                           if (pm >= 75) {
                             iconPath = 'assets/icons/pm-5-icon.png';
                           } else if (pm >= 37.5) {
@@ -709,15 +727,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             iconPath = 'assets/icons/pm-2-icon.png';
                           } else if (pm >= 15) {
                             iconPath = 'assets/icons/pm-2-icon.png';
-                          } else if (pm >= 0) {
-                            iconPath = 'assets/icons/pm-1-icon.png';
                           } else {
                             iconPath = 'assets/icons/pm-1-icon.png';
                           }
+
                           return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Container(
                               width: 50 * scaleFactor,
                               padding: EdgeInsets.symmetric(vertical: 10),
@@ -858,17 +873,19 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _filterStations(String query) {
+    String normalizedQuery = query.trim().toLowerCase();
+
     setState(() {
-      _filteredStations =
-          widget.stations
-              .where(
-                (station) =>
-                    station["nameTH"].contains(query) ||
-                    station["nameEN"].contains(query),
-              )
-              .toList();
+      _filteredStations = widget.stations.where((station) {
+        String nameTH = station["nameTH"].toLowerCase();
+        String nameEN = station["nameEN"].toLowerCase();
+
+        return RegExp(normalizedQuery, caseSensitive: false).hasMatch(nameTH) ||
+            RegExp(normalizedQuery, caseSensitive: false).hasMatch(nameEN);
+      }).toList();
     });
   }
+
 
   Future<void> saveData(String stationID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
