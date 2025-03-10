@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:pm2_flutter_project/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -68,7 +68,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _fetchAQIStations() async {
     final url = Uri.parse(
-      'http://air4thai.pcd.go.th/services/getNewAQI_JSON.php',
+      AppStrings.apiGetAir4thai,
     );
     try {
       final response = await http.get(url);
