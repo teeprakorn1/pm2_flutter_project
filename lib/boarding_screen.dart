@@ -21,6 +21,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
         _currentPage = _pageController.page?.toInt() ?? 0;
       });
     });
+    removePrefs();
   }
 
   @override
@@ -113,6 +114,11 @@ class _BoardingScreenState extends State<BoardingScreen> {
       ),
     );
   }
+}
+
+Future<void> removePrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
 }
 
 List<Map<String, String>> onboardingData = [

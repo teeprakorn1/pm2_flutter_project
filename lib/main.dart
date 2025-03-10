@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: showBoarding ? BoardingScreen() : MainScreen(), // Show BoardingScreen if showBoarding is true
+      home: showBoarding ? BoardingScreen() : MainScreen(),
     );
   }
 }

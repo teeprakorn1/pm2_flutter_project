@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -5,6 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+
+import '../constants/strings.dart';
+import '../main.dart';
 
 class HomeScreen extends StatefulWidget {
   final Color backgroundColor;
@@ -16,14 +20,147 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _stations = [];
-  String _closestStationName = "กรุงเทพมหานคร";
+  String _closestStationName = "-1";
+  String stationID = "-1";
+  String aqi = "-1";
+  String pm25 = "-1";
+  String airTemperature = "-1";
+  String relativeHumidity = "-1";
+  String rainfall = "-1";
   LatLng _currentLatLng = LatLng(0, 0);
+
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? std = prefs.getString('stationID');
+    String? pd = prefs.getString('page');
+
+    if (pd == "SearchPage" && std != null) {
+      stationID = std;
+      Map<String, dynamic> stationData = await getStationId(stationID);
+      if (stationData['status'] != false) {
+        aqi = stationData["AQILast"]?["AQI"]?["aqi"];
+        pm25 = stationData["AQILast"]?["PM25"]?["value"];
+
+        Map<String, dynamic> predictionData = await getTopPredictions(
+          stationData['areaTH'],
+          stationData['areaEN'],
+        );
+
+        if (predictionData['status'] != false) {
+          _closestStationName = predictionData['Province_Name'];
+          Map<String, dynamic> weatherData = await setDistanceWeatherArea(
+            double.parse(stationData["long"]),
+            double.parse(stationData["lat"]),
+          );
+          if (weatherData['status'] != false) {
+            setState(() {
+              airTemperature = double.parse(weatherData['station']['Observation']['AirTemperature']['_']).toString();
+              relativeHumidity = double.parse(weatherData['station']['Observation']['RelativeHumidity']['_']).toString();
+              rainfall = double.parse(weatherData['station']['Observation']['Rainfall']['_']).toString();
+              print('DataTrue: $rainfall and $airTemperature and $relativeHumidity');
+            });
+          }else{
+            _closestStationName = "-1";
+            print('Error: ${weatherData['message']}');
+          }
+        } else {
+          _closestStationName = "-1";
+          print('Error: ${stationData['message']}');
+        }
+      } else {
+        print('Error: ${stationData['message']}');
+        _closestStationName = "-1";
+      }
+    } else {
+      stationID = "-1";
+    }
+  }
+
+
+  Future<Map<String, dynamic>> getStationId(String stationID) async {
+    final url = Uri.parse(AppStrings.apiGetAir4thaiStationId);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'stationID': stationID}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('ข้อมูลที่ได้: $data');
+        return data;
+      } else {
+        final errorData = json.decode(response.body);
+        print('Error: ${errorData['message']}');
+        return {'status': false, 'message': errorData['message']};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'status': false, 'message': 'An error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getTopPredictions(
+    String areaTH,
+    String areaEN,
+  ) async {
+    final url = Uri.parse(AppStrings.apiGetTopPredictions1);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'areaTH': areaTH, 'areaEN': areaEN}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('ข้อมูลที่ได้: $data');
+        return data;
+      } else {
+        final errorData = json.decode(response.body);
+        print('Error: ${errorData['message']}');
+        return {'status': false, 'message': errorData['message']};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'status': false, 'message': 'An error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> setDistanceWeatherArea(double myLong, double myLat) async {
+    final url = Uri.parse(AppStrings.apiSetDistanceWeatherArea);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'mylong': myLong, 'mylat': myLat}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('ข้อมูลที่ได้: $data');
+        return data;
+      } else {
+        final errorData = json.decode(response.body);
+        print('Error: ${errorData['message']}');
+        return {'status': false, 'message': errorData['message']};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'status': false, 'message': 'An error occurred.'};
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
     _fetchAQIStations();
+    loadData();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -53,10 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
       desiredAccuracy: LocationAccuracy.high,
     );
     setState(() {
-      _currentLatLng = LatLng(
-        position.latitude,
-        position.longitude,
-      );
+      _currentLatLng = LatLng(position.latitude, position.longitude);
     });
   }
 
@@ -74,6 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 var lat = double.parse(station["lat"]);
                 var long = double.parse(station["long"]);
                 return {
+                  "stationID": station["stationID"],
                   "nameTH": station["nameTH"],
                   "nameEN": station["nameEN"],
                   "areaTH": station["areaTH"],
@@ -91,52 +226,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 };
               }).toList();
         });
-        _findClosestStation();
       }
     } catch (e) {
       print('Error fetching AQI data: $e');
-    }
-  }
-
-  // Haversine formula to calculate distance between two lat/lon points
-  double _calculateDistance(LatLng position1, LatLng position2) {
-    const R = 6371; // Radius of Earth in km
-    double dLat =
-        (position2.latitude - position1.latitude) *
-            (pi / 180); // Convert to radians
-    double dLon =
-        (position2.longitude - position1.longitude) *
-            (pi / 180); // Convert to radians
-
-    double a =
-        (0.5 - (cos(dLat) / 2)) +
-            cos(position1.latitude * (pi / 180)) *
-                cos(position2.latitude * (pi / 180)) *
-                (1 - cos(dLon)) /
-                2;
-
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return R * c; // Distance in km
-  }
-
-  void _findClosestStation() {
-    double closestDistance = double.infinity;
-    Map<String, dynamic>? closestStation;
-
-    for (var station in _stations) {
-      LatLng stationLatLng = station["position"];
-      double distance = _calculateDistance(_currentLatLng, stationLatLng);
-
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestStation = station;
-      }
-    }
-
-    if (closestStation != null) {
-      setState(() {
-        _closestStationName = _getLastWord(closestStation?['areaTH']);
-      });
     }
   }
 
@@ -254,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            '29.6',
+                            aqi,
                             style: TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontSize: 24 * scaleFactor,
@@ -300,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            '75.1 ขึ้นไป',
+                            "1 - 100",
                             style: TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontSize: 44 * scaleFactor,
@@ -365,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               MaterialPageRoute(
                                 builder:
                                     (context) =>
-                                    SearchPage(stations: _stations),
+                                        SearchPage(stations: _stations),
                               ),
                             );
                           },
@@ -433,7 +525,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   bottom: 2,
                                 ),
                                 child: Text(
-                                  '36.8',
+                                  pm25,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 38 * scaleFactor,
@@ -509,16 +601,21 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildBox("RAIN", "35%", Icons.cloud, scaleFactor),
+                  _buildBox("RAIN", "$rainfall%", Icons.cloud, scaleFactor),
                   SizedBox(width: 10),
                   _buildBox(
                     "TEMPERATURE",
-                    "39 °C",
+                    "$airTemperature °C",
                     Icons.thermostat,
                     scaleFactor,
                   ),
                   SizedBox(width: 10),
-                  _buildBox("Humidity", "29.6", Icons.air, scaleFactor),
+                  _buildBox(
+                    "Humidity",
+                    relativeHumidity,
+                    Icons.air,
+                    scaleFactor,
+                  ),
                 ],
               ),
               SizedBox(height: 20),
@@ -680,11 +777,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBox(
-      String title,
-      String subtitle,
-      IconData icon,
-      double scaleFactor,
-      ) {
+    String title,
+    String subtitle,
+    IconData icon,
+    double scaleFactor,
+  ) {
     return Expanded(
       child: Container(
         height: 90 * scaleFactor,
@@ -742,13 +839,9 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class SearchPage extends StatefulWidget {
-  final List<Map<String, dynamic>>
-  stations;
+  final List<Map<String, dynamic>> stations;
 
-  const SearchPage({
-    super.key,
-    required this.stations,
-  });
+  const SearchPage({super.key, required this.stations});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -761,9 +854,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    _filteredStations =
-        widget
-            .stations;
+    _filteredStations = widget.stations;
   }
 
   void _filterStations(String query) {
@@ -772,11 +863,19 @@ class _SearchPageState extends State<SearchPage> {
           widget.stations
               .where(
                 (station) =>
-            station["nameTH"].contains(query) ||
-                station["nameEN"].contains(query),
-          )
+                    station["nameTH"].contains(query) ||
+                    station["nameEN"].contains(query),
+              )
               .toList();
     });
+  }
+
+  Future<void> saveData(String stationID) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('stationID');
+    prefs.remove('page');
+    await prefs.setString('stationID', stationID);
+    await prefs.setString('page', "SearchPage");
   }
 
   @override
@@ -836,55 +935,66 @@ class _SearchPageState extends State<SearchPage> {
             SizedBox(height: 16),
             Expanded(
               child:
-              _filteredStations.isEmpty
-                  ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.location_off,
-                      size: 80,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "ไม่พบสถานี",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
+                  _filteredStations.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_off,
+                              size: 80,
+                              color: Colors.grey[400],
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "ไม่พบสถานี",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount: _filteredStations.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 6),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.location_on,
+                                color: Color(0xFFD85E5E),
+                              ),
+                              title: Text(
+                                _filteredStations[index]["areaTH"],
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                              onTap: () async {
+                                saveData(
+                                  _filteredStations[index]["stationID"]
+                                      .toString(),
+                                );
+                                print(
+                                  "StationID: ${_filteredStations[index]["stationID"]}",
+                                );
+                                await Future.delayed(Duration(seconds: 1));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MainScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  ],
-                ),
-              )
-                  : ListView.builder(
-                itemCount: _filteredStations.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 6),
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.location_on,
-                        color: Color(0xFFD85E5E),
-                      ),
-                      title: Text(
-                        _filteredStations[index]["areaTH"],
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        print(
-                          "เลือกสถานี: ${_filteredStations[index]["areaTH"]}",
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),
