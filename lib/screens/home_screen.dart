@@ -45,8 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
       Map<String, dynamic> stationData = await getStationId(stationID);
 
       if (stationData['status'] != false) {
-        aqi = stationData["AQILast"]?["AQI"]?["aqi"] ?? "-1";
-        pm25 = stationData["AQILast"]?["PM25"]?["value"] ?? "-1";
+        setState(() {
+          aqi = stationData["AQILast"]?["AQI"]?["aqi"] ?? "-1";
+          pm25 = stationData["AQILast"]?["PM25"]?["value"] ?? "-1";
+        });
 
         Map<String, dynamic> predictionData = await getTopPredictions(
           stationData['areaTH'],
@@ -54,10 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         if (predictionData['status'] != false) {
-          _closestStationName = predictionData['Province_Name'];
-          dateData = predictionData['created_at'];
-          pmValues = extractPMValues(predictionData);
-          checkValuePM();
+          setState(() {
+            _closestStationName = predictionData['Province_Name'];
+            dateData = predictionData['created_at'];
+            pmValues = extractPMValues(predictionData);
+            checkValuePM();
+          });
 
           Map<String, dynamic> weatherData = await setDistanceWeatherArea(
             double.tryParse(stationData["long"].toString()) ?? 0.0,
@@ -82,21 +86,81 @@ class _HomeScreenState extends State<HomeScreen> {
               setBackgroundColor();
             });
           } else {
-            _closestStationName = "-1";
+            setState(() => _closestStationName = "-1");
             print('Error: Weather data error - ${weatherData['message']}');
           }
         } else {
-          _closestStationName = "-1";
+          setState(() => _closestStationName = "-1");
           print('Error: Prediction data error - ${predictionData['message']}');
         }
       } else {
         print('Error: Station data error - ${stationData['message']}');
-        _closestStationName = "-1";
+        setState(() => _closestStationName = "-1");
       }
     } else {
-      stationID = "-1";
+      print('StationID: $_currentLatLng');
+      Map<String, dynamic> dataAir4thai = await setDistanceAir4thaiArea(
+        _currentLatLng.longitude,
+        _currentLatLng.latitude,
+      );
+
+      if (dataAir4thai['status'] != false) {
+        setState(() {
+          aqi = dataAir4thai['station']?["AQILast"]?["AQI"]?["aqi"] ?? "-1";
+          pm25 = dataAir4thai['station']?["AQILast"]?["PM25"]?["value"] ?? "-1";
+          print("x1: $aqi");
+        });
+
+        Map<String, dynamic> predictionData = await getTopPredictions(
+          dataAir4thai['station']?['areaTH'],
+          dataAir4thai['station']?['areaEN'],
+        );
+
+        if (predictionData['status'] != false) {
+          setState(() {
+            _closestStationName = predictionData['Province_Name'];
+            dateData = predictionData['created_at'];
+            pmValues = extractPMValues(predictionData);
+            checkValuePM();
+          });
+
+          Map<String, dynamic> weatherData = await setDistanceWeatherArea(
+            double.tryParse(dataAir4thai['station']!["long"].toString()) ?? 0.0,
+            double.tryParse(dataAir4thai['station']!["lat"].toString()) ?? 0.0,
+          );
+
+          if (weatherData['status'] != false) {
+            setState(() {
+              airTemperature = extractWeatherValue(
+                weatherData['station']['Observation']['AirTemperature'],
+              );
+              relativeHumidity = extractWeatherValue(
+                weatherData['station']['Observation']['RelativeHumidity'],
+              );
+              rainfall = extractWeatherValue(
+                weatherData['station']['Observation']['Rainfall'],
+              );
+              print(
+                'DataTrue: $rainfall and $airTemperature and $relativeHumidity',
+              );
+              print('PM2.5 Predictions: $pmValues');
+              setBackgroundColor();
+            });
+          } else {
+            setState(() => _closestStationName = "-1");
+            print('Error: Weather data error - ${weatherData['message']}');
+          }
+        } else {
+          setState(() => _closestStationName = "-1");
+          print('Error: Prediction data error - ${predictionData['message']}');
+        }
+      } else {
+        setState(() => _closestStationName = "-1");
+        print('Error: Station data error - ${dataAir4thai['message']}');
+      }
     }
   }
+
 
   void setBackgroundColor() {
     aqiValue = checkValueAqi(int.parse(aqi));
@@ -219,6 +283,35 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> setDistanceAir4thaiArea(
+    double myLong,
+    double myLat,
+  ) async {
+    final url = Uri.parse(AppStrings.apiSetDistanceAir4thaiArea);
+
+    try {
+      print('ข้อมูลที่ส่งไป: $myLong and $myLat');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'mylong': myLong, 'mylat': myLat}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('ข้อมูลที่ได้: $data');
+        return data;
+      } else {
+        final errorData = json.decode(response.body);
+        print('Error: ${errorData['message']}');
+        return {'status': false, 'message': errorData['message']};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'status': false, 'message': 'An error occurred.'};
+    }
+  }
+
   Future<Map<String, dynamic>> setDistanceWeatherArea(
     double myLong,
     double myLat,
@@ -250,17 +343,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    _fetchAQIStations();
-    loadData();
+    _initializeData();
   }
 
-  Future<void> _getCurrentLocation() async {
+  Future<void> _initializeData() async {
+    await getCurrentLocation();
+    await _fetchAQIStations();
+    await loadData();
+  }
+
+  Future<void> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
+
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Location services are disabled.');
+      print('Error: Location services are disabled.');
       return;
     }
 
@@ -268,22 +366,21 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        print('Location permissions are denied');
+        print('Error: Location permissions are denied.');
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      print('Location permissions are permanently denied');
+      print('Error: Location permissions are permanently denied.');
       return;
     }
 
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    setState(() {
-      _currentLatLng = LatLng(position.latitude, position.longitude);
-    });
+        desiredAccuracy: LocationAccuracy.high);
+
+    _currentLatLng = LatLng(position.latitude, position.longitude);
+    print('Current Location: $_currentLatLng');
   }
 
   Future<void> _fetchAQIStations() async {
