@@ -3,7 +3,7 @@
 
 **PM2.5 Forecast** is a mobile application developed using **Flutter (Dart)**. It displays real-time information on **PM2.5 levels**, **air quality**, and **weather conditions**. The app also provides future PM2.5 forecasts using an AI-powered **LSTM (Long Short-Term Memory)** model.
 
-This project was developed as part of a **third-year undergraduate course (Semester 2)**.
+This project was developed as part of a university assignment in **Year 3, Semester 2**.
 
 ---
 
@@ -22,6 +22,8 @@ This project was developed as part of a **third-year undergraduate course (Semes
 
 ## ⚙️ System Architecture
 
+The PM2.5 Forecast system is divided into 4 major components, each responsible for a specific part of the application:
+
 | Component             | Description |
 |-----------------------|-------------|
 | **📱 Flutter App**    | Cross-platform mobile app developed in Flutter and Dart |
@@ -29,6 +31,7 @@ This project was developed as part of a **third-year undergraduate course (Semes
 | **🧠 AI Engine (Python)** | LSTM model for PM2.5 forecasting |
 | **📡 External Data Sources** | Data from meteorological and environmental authorities (e.g., Thai Meteorological Dept, PCD, GISTDA) |
 
+> All components are loosely coupled and communicate via REST APIs.
 ---
 
 ## 🧰 Tech Stack
@@ -42,7 +45,7 @@ This project was developed as part of a **third-year undergraduate course (Semes
 - GPS and real-time graph plotting
 - UI designed with Figma
 
-### 🌐 Backend
+### 🌐 Backend (API)
 
 - Node.js + Express
 - RESTful APIs:
@@ -72,8 +75,6 @@ This project was developed as part of a **third-year undergraduate course (Semes
   - GISTDA spatial data
 
 > Model training is based on historical data and evaluated using MSE, RMSE, MAE, and MAPE
-
----
 
 ### 🎓 Academic Context
 
